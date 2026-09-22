@@ -3,9 +3,9 @@ import { Mic, ArrowRight, Server, AudioLines, Languages, MonitorCheck, Check, Sp
 
 export default function PipelineDiagram({ currentStep = 0, provider = 'auto' }) {
   const isGemini = provider === 'gemini';
-  const asrTitle = isGemini ? "Gemini Audio ASR" : "Bhashini";
-  const asrDesc = isGemini ? "Gemini Multimodal extracts speech" : "BHASHINI converts speech to text";
-
+  const asrTitle = isGemini ? "Gemini Audio ASR" : "Bhashini ASR";
+  const asrDesc = isGemini ? "Gemini Multimodal extracts speech" : "BHASHINI ASR converts speech to text";
+  
   const transTitle = isGemini ? "Gemini NMT Translation" : "Bhashini Translation";
   const transDesc = isGemini ? "Gemini translates text to English" : "BHASHINI translation tool to English";
 

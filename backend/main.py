@@ -9,9 +9,23 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from config import settings
-from bhashini_service import bhashini_service, SUPPORTED_LANGUAGES
-from gemini_service import gemini_service
+import sys
+
+# Ensure backend and root paths are in sys.path
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
+for p in [BACKEND_DIR, PROJECT_ROOT]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+try:
+    from config import settings
+    from bhashini_service import bhashini_service, SUPPORTED_LANGUAGES
+    from gemini_service import gemini_service
+except ImportError:
+    from .config import settings
+    from .bhashini_service import bhashini_service, SUPPORTED_LANGUAGES
+    from .gemini_service import gemini_service
 
 logger = logging.getLogger("speech_app")
 logging.basicConfig(level=logging.INFO)
@@ -19,7 +33,9 @@ logging.basicConfig(level=logging.INFO)
 app = FastAPI(
     title="Speech Transcription & Translation API",
     description="Multi-Provider Regional Audio Speech-to-Text & Translation (Bhashini AI + Google Gemini)",
-    version="1.1.0"
+    version="1.1.0",
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json"
 )
 
 # Robust CORS Configuration: explicitly lists local frontend dev servers while also permitting wildcards
@@ -61,19 +77,23 @@ if os.path.exists(FRONTEND_DIST):
 
 
 @app.get("/", summary="Application Root / Frontend UI")
+@app.get("/api", include_in_schema=False)
+@app.get("/api/", include_in_schema=False)
 async def root():
     index_html = os.path.join(FRONTEND_DIST, "index.html")
     if os.path.exists(index_html):
         return FileResponse(index_html)
     return {
         "message": "Speech Transcription & Translation API is running",
-        "docs_url": "/docs",
-        "endpoints": ["/health", "/providers", "/languages", "/transcribe"]
+        "docs_url": "/api/docs",
+        "endpoints": ["/api/health", "/api/providers", "/api/languages", "/api/transcribe"]
     }
 
 
 @app.get("/health", summary="Health Check")
+@app.get("/health/", include_in_schema=False)
 @app.get("/api/health", include_in_schema=False)
+@app.get("/api/health/", include_in_schema=False)
 async def health_check():
     """Verify backend status and provider configurations"""
     bhashini_ready = bhashini_service.is_configured()
@@ -91,7 +111,9 @@ async def health_check():
 
 
 @app.get("/providers", summary="Available AI Providers")
+@app.get("/providers/", include_in_schema=False)
 @app.get("/api/providers", include_in_schema=False)
+@app.get("/api/providers/", include_in_schema=False)
 async def get_providers():
     """Returns available speech-to-text and translation engines"""
     return {
@@ -119,7 +141,9 @@ async def get_providers():
 
 
 @app.get("/languages", summary="Supported Languages")
+@app.get("/languages/", include_in_schema=False)
 @app.get("/api/languages", include_in_schema=False)
+@app.get("/api/languages/", include_in_schema=False)
 async def get_languages():
     """Return list of supported Indian regional languages"""
     return {
@@ -130,7 +154,9 @@ async def get_languages():
 
 
 @app.post("/transcribe", response_model=TranscriptionResponse, summary="Transcribe and Translate Audio")
+@app.post("/transcribe/", response_model=TranscriptionResponse, include_in_schema=False)
 @app.post("/api/transcribe", response_model=TranscriptionResponse, include_in_schema=False)
+@app.post("/api/transcribe/", response_model=TranscriptionResponse, include_in_schema=False)
 async def transcribe_audio(
     audio: UploadFile = File(..., description="Audio file (wav, webm, mp3, ogg, m4a, mp4, flac, aac)"),
     source_language: str = Form(default="hi", description="Source regional language code (e.g. hi, bn, ta, te)"),

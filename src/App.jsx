@@ -156,9 +156,9 @@ export default function App() {
             <Mic size={28} />
           </div>
           <div>
-            <h1 className="brand-title">Multilingual Speech Hub </h1>
+            <h1 className="brand-title">Multilingual Speech Hub</h1>
             <p className="brand-subtitle">
-              Dual-Engine Speech-to-Text &amp; Translation For Parampara
+              Dual-Engine Speech-to-Text &amp; Translation: Bhashini AI + Google Gemini
             </p>
           </div>
         </div>
@@ -175,8 +175,8 @@ export default function App() {
             <span>
               {backendHealth.online
                 ? (backendHealth.gemini_configured
-                  ? "FastAPI (Api Key Live)"
-                  : backendHealth.bhashini_configured
+                    ? "FastAPI (Gemini Key Live)"
+                    : backendHealth.bhashini_configured
                     ? "FastAPI (Bhashini Live)"
                     : "FastAPI Online (Demo Mode)")
                 : "Backend Offline (Port 8000)"}
@@ -235,7 +235,7 @@ export default function App() {
               {isProcessing ? (
                 <>
                   <div className="spinner"></div>
-                  <span>Processing Speech...</span>
+                  <span>Processing Speech with AI...</span>
                 </>
               ) : (
                 <>
